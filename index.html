@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Know the Past</title>
@@ -22,8 +22,14 @@
       }
       /* Simple fade-in animation for the visual card */
       @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.98); }
-        to { opacity: 1; transform: scale(1); }
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
       }
       .animate-fade-in {
         animation: fadeIn 0.4s ease-out forwards;
@@ -34,20 +40,50 @@
       For production applications, it's recommended to manage this key securely 
       and restrict its usage in the Google Cloud Console.
     -->
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZfyoWi92qFStJmTTMW0Kgv3Fr4rPD4kA&libraries=marker"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0"
-  }
-}
-</script>
-</head>
-<body class="bg-gray-900 text-white antialiased">
+    <script
+      async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZfyoWi92qFStJmTTMW0Kgv3Fr4rPD4kA&libraries=marker"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+          "react": "https://aistudiocdn.com/react@^19.1.1",
+          "react/": "https://aistudiocdn.com/react@^19.1.1/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0"
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-gray-900 text-white antialiased">
     <div id="root"></div>
+
+    <!-- VAPI Widget -->
+    <vapi-widget
+      public-key="a527c53a-6360-4936-93a7-373747a600ad"
+      assistant-id="956eba58-5b81-44aa-a5b3-402cd3602b51"
+      mode="voice"
+      theme="dark"
+      base-bg-color="#000000"
+      accent-color="#14B8A6"
+      cta-button-color="#000000"
+      cta-button-text-color="#ffffff"
+      border-radius="large"
+      size="tiny"
+      position="bottom-right"
+      title="Her"
+      start-button-text="Start"
+      end-button-text="End Call"
+      chat-first-message="Hey, How can I help you today?"
+      chat-placeholder="Type your message..."
+      voice-show-transcript="true"
+      consent-required="true"
+      consent-title="Terms and conditions"
+      consent-content="By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as otherwise described in our Terms of Service."
+      consent-storage-key="vapi_widget_consent"
+    ></vapi-widget>
+
+    <script src="https://unpkg.com/@vapi-ai/client-sdk-react/dist/embed/widget.umd.js" async type="text/javascript"></script>
     <script type="module" src="/index.tsx"></script>
-</body>
+  </body>
 </html>

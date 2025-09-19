@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Room, Track, RemoteTrack, AudioTrack } from 'livekit-client';
+import { AccessToken } from 'livekit-server-sdk';
 
 interface VoiceAgentProps {
   context?: string;
@@ -16,25 +17,25 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({
   const roomRef = useRef<Room | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
-  // LiveKit configuration - you'll need to set these in your .env
-  const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'wss://your-project.livekit.cloud';
+  // Local LiveKit configuration
+  const LIVEKIT_URL = 'ws://localhost:7880';
   
-  // Function to get LiveKit token (you'll need to implement this on your backend)
-  const getToken = async (roomName: string, participantName: string) => {
-    // This should call your backend to generate a token
-    // For now, this is a placeholder
-    const response = await fetch('/api/livekit-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roomName, participantName, context })
+  // Generate a proper JWT token for local development
+  const generateLocalToken = async (roomName: string, participantName: string) => {
+    // Use dev credentials from local LiveKit server
+    const token = new AccessToken('devkey', 'secret', {
+      identity: participantName,
+      ttl: '1h',
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to get LiveKit token');
-    }
-    
-    const { token } = await response.json();
-    return token;
+
+    token.addGrant({
+      room: roomName,
+      roomJoin: true,
+      canPublish: true,
+      canSubscribe: true,
+    });
+
+    return await token.toJwt();
   };
 
   const connectToAgent = async () => {
@@ -70,9 +71,9 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({
         onConnectionChange?.(false);
       });
 
-      // Generate room name and get token
+      // Generate room name and token for local development
       const roomName = `history-chat-${Date.now()}`;
-      const token = await getToken(roomName, 'user');
+      const token = await generateLocalToken(roomName, 'user');
 
       // Connect with context metadata
       const connectOptions = {

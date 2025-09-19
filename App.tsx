@@ -4,7 +4,6 @@ import { Map } from './components/Map';
 import { Dock } from './components/Dock';
 import { InfoPanel } from './components/InfoPanel';
 import { VisualContentCard } from './components/VisualContentCard';
-import { VoiceAgent } from './components/VoiceAgent';
 import { fetchHistoricalPlace } from './services/geminiService';
 import { SearchAgent } from './components/SearchAgent';
 import type { SuggestionItem } from './services/agentService';
@@ -22,7 +21,6 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [selectedPlace, setSelectedPlace] = useState<HistoricalPlace | null>(null);
     const [activePanel, setActivePanel] = useState<'info' | 'visuals' | null>(null);
-    const [voiceAgentConnected, setVoiceAgentConnected] = useState<boolean>(false);
 
     const handleCategorySelect = useCallback(async (category: string) => {
         setLoading(true);
@@ -57,14 +55,6 @@ const App: React.FC = () => {
         setActivePanel('info');
     };
 
-    const handleVoiceAgentConnectionChange = (connected: boolean) => {
-        setVoiceAgentConnected(connected);
-    };
-
-    // Generate context for voice agent based on current selected place
-    const voiceAgentContext = selectedPlace 
-        ? `Currently exploring ${selectedPlace.name} in ${selectedPlace.location}. ${selectedPlace.description.slice(0, 200)}...`
-        : 'Exploring historical places around the world';
 
     return (
         <div className="w-screen h-screen relative overflow-hidden">
@@ -104,20 +94,6 @@ const App: React.FC = () => {
             </div>
 
             <Dock onCategorySelect={handleCategorySelect} isLoading={loading} />
-
-            {/* Voice Agent */}
-            <VoiceAgent 
-                context={voiceAgentContext}
-                onConnectionChange={handleVoiceAgentConnectionChange}
-            />
-
-            {/* Voice Agent Status Indicator */}
-            {voiceAgentConnected && (
-                <div className="fixed top-4 left-4 bg-green-500/90 text-white px-3 py-2 rounded-lg shadow-lg z-40 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    <span className="text-sm font-medium">History Guide Connected</span>
-                </div>
-            )}
         </div>
     );
 };
