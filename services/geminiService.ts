@@ -2,7 +2,7 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import type { HistoricalPlace, Slide } from '../types';
 
 // This assumes the API_KEY is available as an environment variable.
-const apiKey = process.env.API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
     throw new Error("API_KEY environment variable not set.");
 }
