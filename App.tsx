@@ -5,13 +5,15 @@ import { Dock } from './components/Dock';
 import { InfoPanel } from './components/InfoPanel';
 import { VisualContentCard } from './components/VisualContentCard';
 import { fetchHistoricalPlace } from './services/geminiService';
+import { SearchAgent } from './components/SearchAgent';
+import type { SuggestionItem } from './services/agentService';
 import type { HistoricalPlace } from './types';
 
 const LoadingSpinner: React.FC = () => (
-  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-50">
-    <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div>
-    <p className="mt-4 text-lg font-semibold text-white">Discovering a place for you...</p>
-  </div>
+    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-50">
+        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div>
+        <p className="mt-4 text-lg font-semibold text-white">Discovering a place for you...</p>
+    </div>
 );
 
 const App: React.FC = () => {
@@ -25,7 +27,7 @@ const App: React.FC = () => {
         setError(null);
         setSelectedPlace(null);
         setActivePanel(null);
-        
+
         try {
             const place = await fetchHistoricalPlace(category);
             setSelectedPlace(place);
@@ -37,7 +39,7 @@ const App: React.FC = () => {
             setLoading(false);
         }
     }, []);
-    
+
     const handleClosePanels = useCallback(() => {
         setSelectedPlace(null);
         setActivePanel(null);
@@ -45,6 +47,12 @@ const App: React.FC = () => {
 
     const handleTogglePanel = (panel: 'info' | 'visuals') => {
         setActivePanel(current => current === panel ? null : panel);
+    };
+
+    const handleSuggestionSelect = (item: SuggestionItem) => {
+        // Use the provided HistoricalPlace payload
+        setSelectedPlace(item.historicalPlaceSchema);
+        setActivePanel('info');
     };
 
     return (
@@ -57,8 +65,11 @@ const App: React.FC = () => {
                     <button onClick={() => setError(null)} className="absolute top-1 right-2 text-white font-bold">&times;</button>
                 </div>
             )}
-            
+
             <Map place={selectedPlace} />
+
+            {/* Search Agent button + bar */}
+            <SearchAgent onSuggestionSelect={handleSuggestionSelect} />
 
             {/* Panel Container */}
             <div className={`
@@ -68,9 +79,9 @@ const App: React.FC = () => {
                 transition-all duration-300 ease-in-out
                 ${selectedPlace ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
             >
-                <InfoPanel 
-                    place={selectedPlace} 
-                    onClose={handleClosePanels} 
+                <InfoPanel
+                    place={selectedPlace}
+                    onClose={handleClosePanels}
                     isExpanded={activePanel === 'info'}
                     onToggle={() => handleTogglePanel('info')}
                 />
@@ -80,7 +91,7 @@ const App: React.FC = () => {
                     onToggle={() => handleTogglePanel('visuals')}
                 />
             </div>
-            
+
             <Dock onCategorySelect={handleCategorySelect} isLoading={loading} />
         </div>
     );
