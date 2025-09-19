@@ -1,9 +1,20 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(chmod:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(brew install:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(mkdir:*)",
+      "Bash(brew:*)",
+      "Bash(export:*)",
+      "Bash(echo $PKG_CONFIG_PATH)",
+      "Bash(find:*)"
     ],
     "deny": []
-  },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+  }
 }
