@@ -2,17 +2,14 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { historicalPlaceSchema } from "./geminiService";
 import type { HistoricalPlace } from "../types";
 
-// Reuse the same API key convention as geminiService
+// API keys
 const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  throw new Error("API_KEY environment variable not set.");
-}
-const ai = new GoogleGenAI({ apiKey });
 
-export type SuggestionItem = {
-  suggestion: string;
-  historicalPlaceSchema: HistoricalPlace; // named as requested
-};
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY environment variable not set.");
+}
+
+const ai = new GoogleGenAI({ apiKey });
 
 // Schema for an array of suggestions each with text and a HistoricalPlace payload
 const suggestionItemSchema = {
@@ -38,6 +35,11 @@ const suggestionsResponseSchema = {
   required: ["suggestions"],
 };
 
+export type SuggestionItem = {
+  suggestion: string;
+  historicalPlaceSchema: HistoricalPlace; // named as requested
+};
+
 /**
  * getSearchSuggestions
  * Input: free-form search text (event or place)
@@ -46,9 +48,10 @@ const suggestionsResponseSchema = {
  * - If the query is an event, map it to a representative physical location with a valid Google Place ID.
  * - Prefer unique, globally interesting places; avoid overused examples unless user explicitly asks.
  */
-export async function getSearchSuggestions(
+// Core search logic without tracing
+const searchSuggestionsCore = async (
   searchText: string
-): Promise<SuggestionItem[]> {
+): Promise<SuggestionItem[]> => {
   const trimmed = (searchText || "").trim();
   if (!trimmed) return [];
 
@@ -74,37 +77,30 @@ CRITICAL RULES:
 Return strictly as JSON matching the response schema.`;
 
   try {
-    const llamaMod = await import("llamaindex");
-    const geminiMod = await import("@llamaindex/google");
-    const GeminiCtor = (geminiMod as any).Gemini;
-
-    const llm = new GeminiCtor({
-      apiKey,
+    // Use direct Gemini API with structured output (working approach)
+    const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: suggestionsResponseSchema,
+      },
     });
 
-    // Create a simple ReAct agent with a strong system prompt
-    const ReActAgent = (llamaMod as any).ReActAgent;
-    const agent = ReActAgent.fromTools([], {
-      llm,
-      systemPrompt:
-        "You generate short search suggestions with structured JSON results.",
-    });
-    
-    const result = await agent.chat({ message: prompt });
-    const text: string = (result?.message?.content ?? result?.response ?? "")
-      .toString()
-      .trim();
-      
-    if (!text) throw new Error("Empty response from LlamaIndex agent");
-
-    const data = JSON.parse(text) as { suggestions: SuggestionItem[] };
+    const jsonText = response.text.trim();
+    const data = JSON.parse(jsonText) as { suggestions: SuggestionItem[] };
     postProcessCategories(data);
     return data.suggestions;
   } catch (error) {
-    console.error("Error with LlamaIndex agent:", error);
+    console.error("Error with search suggestions:", error);
     throw error;
   }
+};
+
+export async function getSearchSuggestions(
+  searchText: string
+): Promise<SuggestionItem[]> {
+  return await searchSuggestionsCore(searchText);
 }
 
 function postProcessCategories(data: { suggestions: SuggestionItem[] }) {

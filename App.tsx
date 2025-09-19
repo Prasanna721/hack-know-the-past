@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Map } from './components/Map';
 import { Dock } from './components/Dock';
 import { InfoPanel } from './components/InfoPanel';

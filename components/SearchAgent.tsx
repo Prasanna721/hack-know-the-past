@@ -9,6 +9,7 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
     const [expanded, setExpanded] = useState(false);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [pending, setPending] = useState(false);
     const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +61,7 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
         // Create new abort controller for this request
         abortControllerRef.current = new AbortController();
         
+        setPending(false);
         setLoading(true);
         try {
             const res = await getSearchSuggestions(searchQuery.trim());
@@ -91,8 +93,13 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
         if (!val.trim()) {
             setSuggestions([]);
             setLoading(false);
+            setPending(false);
             return;
         }
+
+        // Show pending state immediately when user types
+        setPending(true);
+        setSuggestions([]); // Clear previous suggestions
 
         // Set up debounced search (500ms delay)
         debounceTimerRef.current = setTimeout(() => {
@@ -106,6 +113,7 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
             }
+            setPending(false);
             performSearch(query);
         }
     };
@@ -153,11 +161,12 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
             </div>
             
             {/* Suggestions Dropdown */}
-            {expanded && (query.trim() || loading || suggestions.length > 0) && (
+            {expanded && (query.trim() || loading || pending || suggestions.length > 0) && (
                 <div className="mt-2 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700/50 max-h-64 overflow-y-auto custom-scrollbar">
                     <div className="p-2">
+                        {pending && <div className="text-gray-400 text-sm px-3 py-2">Searching...</div>}
                         {loading && <div className="text-gray-400 text-sm px-3 py-2">Thinking...</div>}
-                        {!loading && suggestions.length > 0 && (
+                        {!loading && !pending && suggestions.length > 0 && (
                             <ul className="space-y-1">
                                 {suggestions.map((s, idx) => (
                                     <li key={idx}>
@@ -170,9 +179,6 @@ export const SearchAgent: React.FC<SearchAgentProps> = ({ onSuggestionSelect }) 
                                     </li>
                                 ))}
                             </ul>
-                        )}
-                        {!loading && query.trim() && suggestions.length === 0 && (
-                            <div className="text-gray-400 text-sm px-3 py-2">No suggestions found</div>
                         )}
                     </div>
                 </div>
