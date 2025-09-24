@@ -2,6 +2,8 @@
 
 An AI-powered historical exploration platform that transforms how users learn about history through interactive, personalized visual experiences. Users can explore ancient civilizations, natural landmarks, historical growth patterns, and time periods through an immersive map-based interface that generates custom visual content and historical insights on-demand.
 
+![Screenshot 2025-09-23 at 11 09 39 PM](https://github.com/user-attachments/assets/a90123bc-617f-4254-adb6-1c818ff1cf13)
+
 ## Experience
 
 Discover history through natural language search with AI-powered suggestions that intelligently link historical events to their physical locations on an interactive map. Generate photo-realistic reconstructions of ancient sites and explore them through multiple perspectives with contextual visual storytelling that brings the past to life. Experience hands-free exploration with voice-powered interaction and receive personalized historical content tailored to your interests and the significance of each location.
